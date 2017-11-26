@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context
+                           http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--Configure and integrate Spring and MyBatis-->
+    <!--1. Configure parameters about database, then we can use properties as ${c3p0.url}-->
+    <context:property-placeholder location="classpath:jdbc.properties"/>
+
+    <!--2. Configure c3p0 connection pool-->
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="driverClass" value="${c3p0.driverClass}"></property>
+        <property name="jdbcUrl" value="${c3p0.url}"></property>
+        <property name="user" value="${c3p0.username}"></property>
+        <property name="password" value="${c3p0.password}"></property>
+
+        <!--some private configuration of c2p0 connection pool-->
+        <property name="maxPoolSize" value="30"/>
+        <property name="minPoolSize" value="10"></property>
+
+        <!--Don't auto commit when the connection is closed-->
+        <property name="autoCommitOnClose" value="false"/>
+
+        <!--当获取连接失败重试次数-->
+        <property name="acquireRetryAttempts" value="2"/>
+
+        <!--获取连接超时时间-->
+        <property name="checkoutTimeout" value="1000"/>
+    </bean>
+
+    <!--3. Configure SqlSessionFactory-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+
+        <!--配置Mybatis全局配置文件mybatis-config.xml-->
+        <property name="configLocation" value="classpath:mybatis-config.xml"/>
+
+        <!--扫描entity包，使用别名。多个包可以使用分号隔开-->
+        <property name="typeAliasesPackage" value="org.seckill.entities"/>
+
+        <!--scan mapper xml files-->
+        <property name="mapperLocations" value="classpath:mapper/*.xml"/>
+    </bean>
+
+    <!--4. Scan the package of dao interfaces to implement DAO interfaces dynamically
+        and inject the implements to Spring container automatically-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+
+        <!--Inject SqlSessionFactory-->
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+
+        <!--The package of DAO interfaces-->
+        <property name="basePackage" value="org.seckill.dao"/>
+    </bean>
+
+    <!--Redis DAO-->
+    <bean id="redisDao" class="org.seckill.dao.cache.RedisDao">
+        <constructor-arg index="0" value="localhost"/>
+        <constructor-arg index="1" value="6379"/>
+    </bean>
+</beans>

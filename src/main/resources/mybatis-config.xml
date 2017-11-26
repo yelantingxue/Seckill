@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+    <settings>
+        <!-- use the getGeneratedKeys in JDBC to get auto-incremental properties-->
+        <setting name="useGeneratedKeys" value="true"/>
+
+        <!-- use another column name to replace colume original name, default true-->
+        <setting name="useColumnLabel" value="true"/>
+
+        <!--convert a_b in database to aB in java class-->
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+
+    </settings>
+</configuration>
